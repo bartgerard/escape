@@ -13,8 +13,9 @@ import java.util.List;
  * @version v0.0.1
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class Team {
+    private TeamId teamId;
     private String name;
     private String password;
 

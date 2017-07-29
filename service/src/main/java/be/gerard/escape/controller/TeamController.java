@@ -4,9 +4,12 @@ import be.gerard.escape.model.Mission;
 import be.gerard.escape.model.MissionResult;
 import be.gerard.escape.model.MissionStatus;
 import be.gerard.escape.model.Team;
+import be.gerard.escape.model.TeamId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -34,52 +39,65 @@ public class TeamController {
 
     private final MissionController missionController;
 
-    private final List<Team> teams = new ArrayList<>();
+    private final Map<TeamId, Team> teams = new HashMap<>();
 
     @PostConstruct
     public void setUp() {
-        this.teams.add(Team.builder()
-                           .name("Alfa")
-                           .password("a1a1")
-                           .result(MissionResult.of(Mission.BLACK_MAMBA))
-                           .result(MissionResult.of(Mission.SPYGLASS))
-                           .result(MissionResult.of(Mission.DIGITAL_FORTRESS))
-                           .result(MissionResult.of(Mission.MINOTAUR))
-                           .build()
+        this.teams.put(
+                TeamId.ALFA,
+                Team.builder()
+                    .teamId(TeamId.ALFA)
+                    .name("Alfa")
+                    .password("a1a1")
+                    .result(MissionResult.of(Mission.BLACK_MAMBA))
+                    .result(MissionResult.of(Mission.SPYGLASS))
+                    .result(MissionResult.of(Mission.DIGITAL_FORTRESS))
+                    .result(MissionResult.of(Mission.MINOTAUR))
+                    .build()
         );
-        this.teams.add(Team.builder()
-                           .name("Beta")
-                           .password("r2d2")
-                           .result(MissionResult.of(Mission.MINOTAUR))
-                           .result(MissionResult.of(Mission.BLACK_MAMBA))
-                           .result(MissionResult.of(Mission.SPYGLASS))
-                           .result(MissionResult.of(Mission.DIGITAL_FORTRESS))
-                           .build()
+        this.teams.put(
+                TeamId.BRAVO,
+                Team.builder()
+                    .teamId(TeamId.BRAVO)
+                    .name("Bravo")
+                    .password("r2d2")
+                    .result(MissionResult.of(Mission.MINOTAUR))
+                    .result(MissionResult.of(Mission.BLACK_MAMBA))
+                    .result(MissionResult.of(Mission.SPYGLASS))
+                    .result(MissionResult.of(Mission.DIGITAL_FORTRESS))
+                    .build()
         );
-        this.teams.add(Team.builder()
-                           .name("Delta")
-                           .password("0p3c")
-                           .result(MissionResult.of(Mission.DIGITAL_FORTRESS))
-                           .result(MissionResult.of(Mission.MINOTAUR))
-                           .result(MissionResult.of(Mission.BLACK_MAMBA))
-                           .result(MissionResult.of(Mission.SPYGLASS))
-                           .build()
+        this.teams.put(
+                TeamId.DELTA,
+                Team.builder()
+                    .teamId(TeamId.DELTA)
+                    .name("Delta")
+                    .password("0p3c")
+                    .result(MissionResult.of(Mission.DIGITAL_FORTRESS))
+                    .result(MissionResult.of(Mission.MINOTAUR))
+                    .result(MissionResult.of(Mission.BLACK_MAMBA))
+                    .result(MissionResult.of(Mission.SPYGLASS))
+                    .build()
         );
-        this.teams.add(Team.builder()
-                           .name("Echo")
-                           .password("echo")
-                           .result(MissionResult.of(Mission.SPYGLASS))
-                           .result(MissionResult.of(Mission.DIGITAL_FORTRESS))
-                           .result(MissionResult.of(Mission.MINOTAUR))
-                           .result(MissionResult.of(Mission.BLACK_MAMBA))
-                           .build()
+        this.teams.put(
+                TeamId.ECHO,
+                Team.builder()
+                    .teamId(TeamId.ECHO)
+                    .name("Echo")
+                    .password("echo")
+                    .result(MissionResult.of(Mission.SPYGLASS))
+                    .result(MissionResult.of(Mission.DIGITAL_FORTRESS))
+                    .result(MissionResult.of(Mission.MINOTAUR))
+                    .result(MissionResult.of(Mission.BLACK_MAMBA))
+                    .build()
         );
     }
 
     @GetMapping
     public List<Team> teams() {
-        return teams.stream()
-                    .map(team -> team.builder()
+        return teams.values()
+                    .stream()
+                    .map(team -> team.toBuilder()
                                      .clearResults()
                                      .results(team.getResults()
                                                   .stream()
@@ -95,18 +113,20 @@ public class TeamController {
 
     @GetMapping("export")
     public List<Team> export() {
-        return teams;
+        return new ArrayList<>(teams.values());
     }
 
     @PostMapping("import")
     public void export(@RequestBody final List<Team> teams) {
         this.teams.clear();
-        this.teams.addAll(teams);
+
+        teams.forEach(team -> this.teams.put(team.getTeamId(), team));
     }
 
     @GetMapping("login")
     public MissionResult login(@RequestParam("password") final String password) {
-        final Team team = this.teams.stream()
+        final Team team = this.teams.values()
+                                    .stream()
                                     .filter(hasPassword(password))
                                     .findFirst()
                                     .orElse(null);
@@ -117,7 +137,7 @@ public class TeamController {
 
         if (Objects.nonNull(team.getCurrentMission())) {
             if (team.getCurrentMission()
-                    .isTooSoon()) {
+                    .isWithinTimeout()) {
                 return team.getCurrentMission();
             }
 
@@ -142,6 +162,22 @@ public class TeamController {
             final String password
     ) {
         return (team) -> Objects.equals(team.getPassword(), password);
+    }
+
+    @PutMapping("{teamId}/missions/{mission}")
+    public void alterResults(
+            @PathVariable("teamId") final TeamId teamId,
+            @PathVariable("mission") final Mission mission,
+            @RequestBody final MissionResult missionResult
+    ) {
+        this.teams.get(teamId)
+                  .getResults()
+                  .stream()
+                  .filter(x -> x.getMission() == mission)
+                  .findFirst()
+                  .ifPresent(result -> {
+                      result.setBonus(missionResult.getBonus());
+                  });
     }
 
 }

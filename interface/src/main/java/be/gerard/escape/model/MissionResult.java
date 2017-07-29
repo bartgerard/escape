@@ -1,5 +1,6 @@
 package be.gerard.escape.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +17,7 @@ import java.util.Objects;
 @RequiredArgsConstructor(staticName = "of")
 @Data
 public class MissionResult {
+    public static final int TIMEOUT = 1;
     private final Mission mission;
 
     private MissionStatus status = MissionStatus.PENDING;
@@ -35,13 +37,10 @@ public class MissionResult {
         this.end = LocalDateTime.now();
     }
 
-    public boolean isTooSoon() {
-        if (Objects.isNull(start)) {
-            return false;
-        }
-
+    @JsonIgnore
+    public boolean isWithinTimeout() {
         return LocalDateTime.now()
-                            .minusMinutes(3)
+                            .minusMinutes(TIMEOUT)
                             .isBefore(start);
     }
 
