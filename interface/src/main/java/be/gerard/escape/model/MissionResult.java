@@ -17,7 +17,7 @@ import java.util.Objects;
 @RequiredArgsConstructor(staticName = "of")
 @Data
 public class MissionResult {
-    public static final int TIMEOUT = 1;
+    public static final int TIMEOUT = 3;
     private final Mission mission;
 
     private MissionStatus status = MissionStatus.PENDING;

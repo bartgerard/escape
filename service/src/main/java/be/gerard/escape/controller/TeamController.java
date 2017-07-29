@@ -72,7 +72,7 @@ public class TeamController {
                 Team.builder()
                     .teamId(TeamId.DELTA)
                     .name("Delta")
-                    .password("0p3c")
+                    .password("3333")
                     .result(MissionResult.of(Mission.DIGITAL_FORTRESS))
                     .result(MissionResult.of(Mission.MINOTAUR))
                     .result(MissionResult.of(Mission.BLACK_MAMBA))
