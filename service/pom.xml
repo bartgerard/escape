@@ -17,6 +17,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>be.gerard</groupId>
+            <artifactId>escape-interface</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- Swagger -->
         <dependency>
             <groupId>io.springfox</groupId>
