@@ -141,8 +141,17 @@ public class TeamController {
                 return team.getCurrentMission();
             }
 
+            /*
             team.getCurrentMission()
                 .end();
+                */
+            team.getResults()
+                .stream()
+                .filter(result -> result.getMission() == team.getCurrentMission()
+                                                             .getMission()
+                )
+                .findFirst()
+                .ifPresent(MissionResult::end);
         }
 
         final Optional<MissionResult> newMission = team.getResults()
