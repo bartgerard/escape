@@ -72,7 +72,7 @@ public class MissionResult {
         final long duration = getDuration();
         final long timePenalty = duration > mission.getLength() ? duration - mission.getLength() : 0L;
 
-        return (15 - timePenalty) * 10L;
+        return mission.getPoints() - timePenalty;
     }
 
 }

@@ -12,12 +12,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum Mission {
-    BLACK_MAMBA("Black Mamba", 15),
-    SPYGLASS("Spyglass", 15),
-    DIGITAL_FORTRESS("Digital Fortress", 15),
-    MINOTAUR("Minotaur", 15);
+    BLACK_MAMBA("Black Mamba", 15, 10),
+    SPYGLASS("Spyglass", 15, 10),
+    DIGITAL_FORTRESS("Digital Fortress", 15, 10),
+    MINOTAUR("Minotaur", 15, 10);
 
     private final String name;
     private final long length;
+    private final long points;
 
 }
