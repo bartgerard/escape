@@ -68,7 +68,11 @@ public class MissionResult {
         if (status != MissionStatus.FINISHED) {
             return 0L;
         }
-        return (15 - Math.abs(mission.getLength() - getDuration())) * 10L;
+
+        final long duration = getDuration();
+        final long timePenalty = duration > mission.getLength() ? duration - mission.getLength() : 0L;
+
+        return (15 - timePenalty) * 10L;
     }
 
 }
