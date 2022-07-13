@@ -1,0 +1,2 @@
+springdoc:
+  packages-to-scan: be.gerard.escape.controller

@@ -37,8 +37,6 @@ import java.util.stream.Collectors;
 @RequestMapping("teams")
 public class TeamController {
 
-    private final MissionController missionController;
-
     private final Map<TeamId, Team> teams = new HashMap<>();
 
     @PostConstruct
@@ -141,10 +139,6 @@ public class TeamController {
                 return team.getCurrentMission();
             }
 
-            /*
-            team.getCurrentMission()
-                .end();
-                */
             team.getResults()
                 .stream()
                 .filter(result -> result.getMission() == team.getCurrentMission()
